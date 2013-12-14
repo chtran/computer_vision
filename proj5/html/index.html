@@ -1,0 +1,219 @@
+<html>
+<head>
+<title>CS 143 Project</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>  
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+<link rel="stylesheet" href="css/bootstrap.min.css">
+
+<style type="text/css">
+.table_2 img{
+    width: 400px;
+}
+
+.table_1 img{
+    max-width: 1200px;
+}
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 960px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#contents a {
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1>Chau Tran <span style="color: #DE3737">(chtran)</span></h1>
+</div>
+</div>
+<div class="container">
+
+<h2>CS 143 / Project 5 / Boundary Detection with Sketch Tokens</h2>
+
+<h3>Goal</h3>
+<p>The goal of this project is to build a boundary detector using the Sketch Tokens technique introduced by <a href="http://cs.brown.edu/courses/cs143/proj5/SketchTokens_cvpr13.pdf">Lim, Zitnick, and Dollar 2013</a></p>
+<p>This is done in four steps:</p>
+<ol>
+<li>Getting image representation: Each RGB image is converted to 14 channels</li>
+    <ul>
+        <li>3 LUV color channels</li>
+        <li>3 overall gradient magnitude channels: 3 levels of blur with sigma = 0, 1.5 and 5</li>
+        <li>8 oriented gradient magnitude channels: 4 orientations 0, pi/4, pi/2, and 3pi/2 with 2 blur levels sigma = 0 and 1.5</li>
+    </ul>
+<li>Creating training data based on BSDS annotations:
+    <ul>
+        <li>Sampling positive examples (edge patches): Add up all the ground truth boundaries provided by humans and sample from them for positive examples. Cluster the postive examples using K-Means (on the Daisy descriptor feature space) to find different types of sketch tokens</li>
+        <li>Sample negative examples (non-edge patches): Scanning images for patches that do not contain edges</li>
+    </ul>
+</li>
+<li>Training the random forest classifier: Use 20 different decision trees</li>
+<li>Boundary classification: Use a sliding window and apply the random forest classifier to predict the probability of each window falling into each class. Sum up the probability of edge classes to get the edge probability. Blur the image before applying non-maximum suppresion</li>
+</ul>
+</ol>
+
+<h3>Results</h3>
+<h4>PR curve</h4>
+<img width="700px" src="images/PR_curve.png"/>
+<p>F-score = 0.63</p>
+<h4>num_sketch_tokens=16</h4>
+<table>
+    <tr>
+        <td><img src="images/small_test/3063.jpg"/></td>
+        <td><img src="images/sketch_tokens/3063.png"/></td>
+    </tr>
+    <tr>
+        <td><img src="images/small_test/35028.jpg"/></td>
+        <td><img src="images/sketch_tokens/35028.png"/></td>
+    </tr>
+    <tr>
+        <td><img src="images/small_test/35049.jpg"/></td>
+        <td><img src="images/sketch_tokens/35049.png"/></td>
+    </tr>
+    <tr>
+        <td><img src="images/small_test/43051.jpg"/></td>
+        <td><img src="images/sketch_tokens/43051.png"/></td>
+    </tr>
+    <tr>
+        <td><img src="images/small_test/49024.jpg"/></td>
+        <td><img src="images/sketch_tokens/49024.png"/></td>
+    </tr>
+    <tr>
+        <td><img src="images/small_test/70011.jpg"/></td>
+        <td><img src="images/sketch_tokens/70011.png"/></td>
+    </tr>
+    <tr>
+        <td><img src="images/small_test/106005.jpg"/></td>
+        <td><img src="images/sketch_tokens/106005.png"/></td>
+    </tr>
+    <tr>
+        <td><img src="images/small_test/185092.jpg"/></td>
+        <td><img src="images/sketch_tokens/185092.png"/></td>
+    </tr>
+    <tr>
+        <td><img src="images/small_test/112056.jpg"/></td>
+        <td><img src="images/sketch_tokens/112056.png"/></td>
+    </tr>
+    <tr>
+        <td><img src="images/small_test/196027.jpg"/></td>
+        <td><img src="images/sketch_tokens/196027.png"/></td>
+    </tr>
+</table>
+</body>
+</html>

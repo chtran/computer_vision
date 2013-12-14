@@ -1,0 +1,205 @@
+<html>
+<head>
+<title>CS 143 Project</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>  
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+<link rel="stylesheet" href="css/bootstrap.min.css">
+
+<style type="text/css">
+.table_2 img{
+    width: 400px;
+}
+
+.table_1 img{
+    max-width: 1200px;
+}
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 960px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#contents a {
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1>Chau Tran <span style="color: #DE3737">(chtran)</span></h1>
+</div>
+</div>
+<div class="container">
+
+<h2>CS 143 / Project 4 / Face Detection with a Sliding Window</h2>
+
+<h3>Goal</h3>
+<p>The goal of this project is to build a face detector by independently classify all image patches (windows) as being face or non-face</p>
+<p>This is done in three steps:</p>
+<ol>
+<li>Getting training features: Image features are computed using Histogram of Oriented Gradients (HOG), which is introduced in Dalal and Triggs CVPR 2005. We used cell size = 6 pixels in the baseline implementation</li>
+    <ul>
+        <li>Positive examples are taken from the Caltech database (cropped and resized to 36x36)</li>
+        <li>Negative examples are taken randomly from a database of non-face images</li>
+    </ul>
+<li>Training face classifier: We use Support Vector Machine to train a classifier that detects faces from non-faces. Since the data are very high-dimensional, SVM works pretty well.</li>
+<li>Running face detector on test images: Sliding window at multiple scales and use non maximum suppresion
+</li>
+</ul>
+</ol>
+
+<h3>Results</h3>
+<h4>Face template HoG visualization</h4>
+<img src="images/hog_viz.png"/>
+<h4>Threshold = 0.75</h4>
+<img src="images/7_ROC.png"/>
+<img src="images/7_Figure6.png"/>
+<img src="images/7_argentina.png"/>
+<img src="images/7_class57.png"/>
+<img src="images/7_friends.png"/>
+<img src="images/7_Aerosmith.png"/>
+<h4>Threshold = 0.5</h4>
+<img src="images/50_ROC.png"/>
+<img src="images/50_Figure6.png"/>
+<img src="images/50_argentina.png"/>
+<img src="images/50_class57.png"/>
+<img src="images/50_friends.png"/>
+<img src="images/50_Aerosmith.png"/>
+<h4>Threshold = -0.2</h4>
+<img src="images/1_ROC.png"/>
+<img src="images/1_Figure6.png"/>
+<img src="images/1_argentina.png"/>
+<img src="images/1_class57.png"/>
+<img src="images/1_friends.png"/>
+<img src="images/1_Aerosmith.png"/>
+<h4>Results on extra test scenes (threshold = 0.75)</h4>
+<img src="images/2011_easy.png"/>
+<img src="images/2011_hard.png"/>
+<img src="images/2013_easy.png"/>
+<img src="images/2013_easy2.png"/>
+<img src="images/2013_hard1.png"/>
+<img src="images/2013_hard2.png"/>
+<img src="images/2013_hard3.png"/>
+<img src="images/faculty.png"/>
+<h3>Discussion</h3>
+<p>A few things I've learned while parameter tuning for this project:</p>
+<ul>
+    <li>Higher threshold means higher average precision in precision recall curve because it doesn't penalize fall positives</li>
+    <li>Small lambda (regularization) works the best (I used lambda = 0.0001)</li>
+</ul>
+</body>
+</html>

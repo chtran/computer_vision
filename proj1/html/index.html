@@ -1,0 +1,355 @@
+<html>
+<head>
+<title>CS 143 Project</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<link rel="stylesheet" href="css/bootstrap.min.css">
+
+
+<style type="text/css">
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 960px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+.carousel-caption {
+	opacity: 0.4;
+}
+.inner-item {
+	text-align: center;
+}
+.carousel {
+	margin-top: 20px;
+}
+</style>
+
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1>Chau Tran <span style="color: #DE3737">(chtran)</span>: Image Filtering and Hybrid Images</h1>
+
+</div>
+</div>
+<div class="container">
+
+
+
+<h2>Image Filtering</h2>
+<h3>Method</h3>
+<p>
+The idea behind linear image filtering is pretty simple: Given as input two images (matrices): <strong>image</strong>, and <strong>filter</strong>. For each pixel in image, we then take the <strong>submatrix</strong> surrounding that pixel (which has the same size as <strong>filter</strong>), multiply each element in <strong>submatrix</strong> with <strong>filter</strong>, add them up, and the resulting number will be the corresponding value in the <strong>output</strong> image(matrix)
+</p>
+<p>
+One edge case we have to handle is that for pixels near the edges of <strong>image</strong>, there won't be a big enough submatrix surrounding them, so we can't perform the computation above. There are several ways to work around this and in this assignment, I chose to pad <strong>image</strong> with surrounding zeroes
+</p>
+<p>Since the code will have to handle both gray-scale and color images, I first created a helper function that handles gray-scale images (those having only one color channel)
+</p>
+<pre><code>
+function one_channel_output = one_channel_filter(image, filter)
+    img_height = size(image, 1);
+    img_width = size(image, 2);
+    filter_height = size(filter, 1);
+    filter_width = size(filter, 2);
+    pad_height = (filter_height - 1)/2;
+    pad_width = (filter_width - 1)/2;
+
+    one_channel_output = zeros(img_height, img_width);
+    padded = zeros(img_height + 2 * pad_height, img_width + 2 * pad_width); % add zero-padding
+    padded(1 + pad_height: img_height + pad_height, 1 + pad_width: img_width + pad_width) = image;
+    for ii = 1 : img_height
+        for jj = 1 : img_width
+            square = padded(ii : ii + 2 * pad_height, jj : jj + 2 * pad_width);       
+            one_channel_output(ii, jj) = sum(sum(square .* filter));
+        end
+    end
+end
+</code></pre>
+
+<p>Then in the main function, I use <strong>one_channel_filter()</strong> on gray-scale images, or use <strong>one_channel_filter()</strong> on each of the R/G/B channels on color images</p>
+<pre><code>
+output = zeros(size(image));
+dim = length(size(image)); %1 if gray scale, 3 if colored
+if (dim == 1)
+    output = one_channel_filter(image, filter);
+elseif (dim == 3)
+    for d = 1: 3
+        output(:, :, d) = one_channel_filter(image(:, :, d), filter);
+    end
+end
+end
+</code></pre>
+<p><strong>proj1_test_filtering</strong> will then test my filter function with several different filters. The results are included below:</p>
+<h3>Results</h3>
+<div id="filtering" class="carousel slide">
+  <!-- Wrapper for slides -->
+  <div class="carousel-inner">
+    <div class="item active">
+      <div class="inner-item">
+      	<img src="results/identity_image.jpg" alt="...">
+      </div>
+      <div class="carousel-caption">
+        Identity Image
+      </div>
+    </div>
+    
+    <div class="item">
+      <div class="inner-item">
+      	<img src="results/blur_image.jpg" alt="...">
+      </div>
+      <div class="carousel-caption">
+        Blur Image
+      </div>
+    </div>
+    
+    <div class="item">
+      <div class="inner-item">
+      	<img src="results/large_blur_image.jpg" alt="...">
+      </div>
+      <div class="carousel-caption">
+        Large Blur Image
+      </div>
+    </div>
+    <div class="item">
+      <div class="inner-item">
+      	<img src="results/high_pass_image.jpg" alt="...">
+      </div>
+      <div class="carousel-caption">
+        High Pass Image
+      </div>
+    </div>
+    
+    <div class="item">
+      <div class="inner-item">
+      	<img src="results/sobel_image.jpg" alt="...">
+      </div>
+      <div class="carousel-caption">
+        Sobel Image
+      </div>
+    </div>
+    
+    <div class="item">
+      <div class="inner-item">
+      	<img src="results/laplacian_image.jpg" alt="...">
+      </div>
+      <div class="carousel-caption">
+        Laplacian Image
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <a class="left carousel-control" href="#filtering" data-slide="prev">
+    <span class="icon-prev"></span>
+  </a>
+  <a class="right carousel-control" href="#filtering" data-slide="next">
+    <span class="icon-next"></span>
+  </a>
+</div>
+
+
+
+<h2>Hybrid Images</h2>
+<h3>Method</h3>
+<p>To create a hybrid image of two given images(<strong>image1</strong>, and <strong>image2</strong>), we follow the following steps:</p>
+<ol>
+	<li>
+		Remove the high frequencies from <strong>image2</strong> by filtering it with a Gaussian blur
+		<pre><code>low_frequencies = my_imfilter(image1, filter);</code></pre>
+	</li>
+	<li>
+		Remove the low frequencies from <strong>image1</strong> by substract the low frequencies of it from the original image
+		<pre><code>high_frequencies = image2 - my_imfilter(image2, filter);</code></pre>
+	</li>
+	<li>
+		Add the low frequencies version of <strong>image1</strong> and the high frequencies of <strong>image2</strong> together
+		<pre><code>hybrid_image = low_frequencies + high_frequencies;</code></pre>
+	</li>
+</ol>
+<p>One parameter that we need to tune to get the best result is <strong>cutoff_frequency</strong>. It's the standard deviation of the Gaussian blur filter. The results along with the corresponding <strong>cutoff_frequency</strong> are included below:</p>
+<div id="hybrids">
+</div>
+
+<div style="clear:both" >
+<p><br /></p>
+</div>
+<script src="js/jquery.min.js"></script>  
+<script src="js/bootstrap.js"></script>  
+<script src="highlighting/highlight.pack.js"></script>
+<script type="text/javascript">
+function get_carousel(name, text) {
+	return '<h3 style="text-align:center">'+ text + '</h3>' +
+				'<div id="' + name + '" class="carousel slide">' +
+					 '<div class="carousel-inner">'+
+						'<div class="item active">' +
+						 ' <div class="inner-item">' +
+							'  <img src="results/hybrids/' + name +'/low_frequencies.jpg" alt="...">' +
+							 ' <div class="carousel-caption">' +
+								'Low frequencies' +
+							  '</div>' +
+						  '</div>' +
+						'</div>' +
+
+						'<div class="item">' +
+						 ' <div class="inner-item">' +
+							'  <img src="results/hybrids/' + name +'/high_frequencies.jpg" alt="...">' +
+							 ' <div class="carousel-caption">' +
+								'High frequencies' +
+							  '</div>' +
+						  '</div>' +
+						'</div>' +
+
+						'<div class="item">' +
+						 ' <div class="inner-item">' +
+							'  <img src="results/hybrids/' + name +'/hybrid_image.jpg" alt="...">' +
+							 ' <div class="carousel-caption">' +
+								'Hybrid Image' +
+							  '</div>' +
+						  '</div>' +
+						'</div>' +
+
+						'<div class="item">' +
+						 ' <div class="inner-item">' +
+							'  <img src="results/hybrids/' + name +'/hybrid_image_scales.jpg" alt="...">' +
+							 ' <div class="carousel-caption">' +
+								'Hybrid Image scales' +
+							  '</div>' +
+						  '</div>' +
+						'</div>' +
+
+					 ' </div>' +
+					  '<a class="left carousel-control" href="#' +  name+ '" data-slide="prev">' +
+						'<span class="icon-prev"></span>' +
+					 ' </a>' +
+					  '<a class="right carousel-control" href="#' +  name+ '" data-slide="next">' +
+						'<span class="icon-next"></span>' +
+					  '</a>' +
+					'</div>';
+}
+
+    var hybrids = {}
+    hybrids['bird_plane'] =  'Bird/Plane (cutoff_frequency = 6)';
+    hybrids['bike_motor'] = 'Bicycle/Motorcycle (cutoff_frequency = 7)';
+    hybrids['dog_cat'] = 'Dog/Cat (cutoff_frequency = 6)';
+    hybrids['einstein_marilyn'] = 'Einstein/Marilyn (cutoff_frequency = 6)';
+    hybrids['fish_submarine'] = 'Fish/Submarine (cutoff_frequency = 7)';
+    hybrids['hays_doeppner'] = 'James Hays/Tom Doeppner (cutoff_frequency = 6)';
+    hybrids['left_right'] = 'Left Arrow/Right Arrow (cutoff_frequency = 5)';
+    
+    var images = ['low_frequencies.jpg', 'high_frequencies.jpg', 'hybrid_image.jpg', 'hybrid_image_scales.jpg'];
+    var path = 'results/hybrids/';
+    $('document').ready(function() {
+        for (var name in hybrids) {
+            $('#hybrids').append(get_carousel(name, hybrids[name]));            
+        }
+    });
+</script>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</body>
+</html>

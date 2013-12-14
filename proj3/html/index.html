@@ -1,0 +1,212 @@
+<html>
+<head>
+<title>CS 143 Project</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>  
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+<link rel="stylesheet" href="css/bootstrap.min.css">
+
+<style type="text/css">
+.table_2 img{
+    width: 400px;
+}
+
+.table_1 img{
+    max-width: 1200px;
+}
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 960px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#contents a {
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1>Chau Tran <span style="color: #DE3737">(chtran)</span></h1>
+</div>
+</div>
+<div class="container">
+
+<h2>CS 143 / Project 2 / Scene Recognition with Bag of Words</h2>
+
+<h3>Goal</h3>
+<p>The goal of this project is to examine the task of scene recognition with different methods with various complexity.</p>
+<p>This is done in two steps:</p>
+<ol>
+<li>Feature computation: How to represent an image as a vector</li>
+<ul>
+    <li>We start with the tiny image representation, which basically resizes the image to a given size, and then reshape it into a vector</li>
+    <li>A more complex representation is Bag of SIFT, which first finds the SIFT descriptors of 16x16 patches computed over a grid of equal spacing, quantize them into a certain discrete types(<strong>vocab_size</strong> types), and count the frequency of those types appearing in the image</li>
+</ul>
+<li>Scene classification: Given the set of training features and training labels, how to find a map from any vector to a scene label</li>
+<ul>
+    <li>We experimented with K-Nearest Neighbor classification, which find the K training images that are nearest to a given test image, and return the scene label that is dominant among them</li>
+    <li>We also implemented the Support Vector Machine classifier which tries to find the line separating images in a category from images not in that category</li>
+</ul>
+</ol>
+
+<h3>Results</h3>
+(Click on image to see more details)
+<ol>
+    <li>Tiny image + K Nearest Neighbor
+        <a href="tiny_knn/index.html"><img src="tiny_knn/confusion_matrix.png"></a>
+        <p>
+        Accuracy (mean of diagonal of confusion matrix) is 0.221
+        </p>
+    </li>
+    <li>Bag of SIFT + K Nearest Neighbor
+        <a href="sift_knn/index.html"><img src="sift_knn/confusion_matrix.png"></a>
+        <p>
+        Accuracy (mean of diagonal of confusion matrix) is 0.531
+        </p>
+    </li>
+    <li>Bag of SIFT + linear SVM
+        <a href="sift_svm/index.html"><img src="sift_svm/confusion_matrix.png"></a>
+        <p>
+        Accuracy (mean of diagonal of confusion matrix) is 0.666
+        </p>
+    </li>
+</ol>
+
+<h3>Effect of vocabulary size</h3>
+<p>One free parameter in the Bag of SIFT model is the size of the vocabulary, or the number of clusters that we'll store. Reducing the vocabulary size means that we're compressing the feature vectors by reducing their dimension, increasing the vocabulary size makes the visual words more fine-grained. We investigated how the performance varies with different vocabulary sizes, their correlation is shown in the graph below:</p>
+
+<div>
+    <img src="images/vocab_sizes.png" />
+</div>
+<p>We can see that the performance vastly improves with vocabulary size going from 20 to 200 but improves more slowly for larger vocabuary sizes. This is because as more clusters are introduced, the chance for noise and the number of dimension in the feature vector also increases.</p>
+
+<h3>Soft assignment</h3>
+<p>One disadvantage of vector quantization is that two features assigned to two different (even very close) clusters are considered totally different. To remedy this problem, we experimented with "soft assignment": each feature is is assgined with a given weight to several visual words nearby in the feature space. The weight assigned is proportional to the exponential of the negative distance from the feature to the visual word.</p>
+
+<pre><code>
+[indices, distances] = knnsearch(vocab, features', 'K', 3);
+N_features = size(features,2);
+weights = exp(-0.5*(distances.^2)./variance);
+for u=1:N_features
+    for v=1:K
+        image_feats(ii, indices(u,v)) = weights(u,v) + image_feats(ii, indices(u,v));
+    end
+end
+</code></pre>
+<p>Unfortunately, we did not see any substantial performance gain from this.</p>
+</body>
+</html>

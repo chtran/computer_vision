@@ -1,0 +1,282 @@
+<html>
+<head>
+<title>CS 143 Project</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>  
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+
+<style type="text/css">
+.table_2 img{
+    width: 400px;
+}
+
+.table_1 img{
+    max-width: 1200px;
+}
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 960px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+td img {
+  vertical-align: middle;
+}
+
+#contents a {
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1>Chau Tran <span style="color: #DE3737">(chtran)</span></h1>
+</div>
+</div>
+<div class="container">
+
+<h2>CS 143 / Project 2 / Local Feature Matching</h2>
+
+<h3>Goal</h3>
+<p>The goal of this project is to implement a local feature matcher that will detect local features in two images taken of the same object from different view points, under different illumination and find their correspondence.</p>
+<p>This is done in 3 steps:</p>
+<ol>
+<li>Interest point detection: Find interest points in each image</li>
+<li>Local feature description: Compute a descriptor vector for each interest point</li>
+<li>Feature matching: Find correspondence between features of 2 images</li>
+</ol>
+
+<h3>Interest point detection</h3>
+<p>Interest points (or key points) are found by examining each small window in a given image. If shifting a window in any direction gives a large change in intensity then there's a high change that the window contains a key point.</p>
+<p>I implemented the interest point detector based on the algorithm described in the <a href="http://cs.brown.edu/courses/cs143/lectures/08.pdf">lecture note</a> and <strong>Sleziski Algorithm 4.1</strong>:
+<ol>
+    <li>Compute the x and y gradients of the image by convolving it with a derivative of Gaussian (variance = 1), call them Ix and Iy</li>
+    <li>Compute Ixx = Ix.*Ix, Iyy = Iy.*Iy, Ixy = Ix.*Iy (elements in the second moment matrix)</li>
+    <li>Convolve each of the three images above with a larger Gaussian (variance = 2), call them g(Ixx), g(Iyy), g(Ixy)</li>
+    <li>Compute the cornerness function given by g(Ixx)g(Iyy) - g(Ixy)^2- alpha*(g(Ixx) + g(Iyy))^2</li>
+    <li>Peform non-maxima suppression</li>
+</ol>
+
+I tried to do non-maxima suppression in two ways:
+<ol>
+    <li>Make a sliding window across the image, keep only the maxima in each window</li>
+    <li>Threshold the cornerness function above a certain threshold, keep only the local maxima in each connected component</li>
+</ol>
+<p>The results for each way of doing non-maxima supression is shown belown. Using connected components is much faster (1.44s) than using a sliding window (16.853s) while the results are very similar. Moreover, we can see that using a sliding window is more susceptible to edges than using connected components.</p>
+<div style="clear:both" />
+<table class="table_2">
+    <thead>
+        <tr>
+            <th>Sliding window</th>
+            <th>Connected components</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><img src="images/sliding.jpg" /></td>
+            <td><img src="images/connected_components.jpg" /></td>
+        </tr>
+        <tr>
+            <td><img src="images/sliding2.jpg" /></td>
+            <td><img src="images/connected_components2.jpg" /></td>
+        </tr>
+    </tbody>
+</table>
+
+<div style="clear:both" />
+<h3>Local feature description</h3>
+<p>The local feature descriptors are computed using SIFT as described in <a href="http://cs.brown.edu/courses/cs143/lectures/09.pdf">lecture note</a>:</p>
+<ol>
+    <li>Get a frame of size <strong>feature_width x feature_width</strong> surrounding each key point</li>
+    <li>Divide each frame into 16 cells (4 x 4)</li>
+    <li>Compute the gradient histogram for each cell by binning (8 bins)</li>
+    <li>The resulting descriptor will be formed by concatenating the gradient histograms of the 16 cells (16x8=128 dimensions)</li>
+</ol>
+
+<div style="clear:both" />
+<table class="table_2">
+    <tr>
+        <td colspan="2" align="center"><b>Feature frames</b></td>
+    </tr>
+    <tr>
+        <td><img src="images/frames1.jpg" /></td>
+        <td><img src="images/frames2.jpg" /></td>
+    </tr>
+</table>
+
+<div style="clear:both" />
+<table class="table_2">
+    <tr>
+        <td colspan="2" align="center"><b>One sample frame</b></td>
+    </tr>
+    <tr>
+        <td>Frame</td>
+        <td><img src="images/single_frame.jpg" /></td>
+    </tr>
+    <tr>
+        <td>Horizontal gradient</td>
+        <td><img src="images/single_frame_x_gradient.jpg" /></td>
+    </tr>
+    <tr>
+        <td>Vertical gradient</td>
+        <td><img src="images/single_frame_y_gradient.jpg" /></td>
+    </tr>
+    <tr>
+        <td>Binned gradient orientations</td>
+        <td><img src="images/single_frame_orients.jpg" /></td>
+    </tr>
+    <tr>
+        <td>Gradient magnitude</td>
+        <td><img src="images/single_frame_mag.jpg" /></td>
+    </tr>
+</table>
+
+<div style="clear:both" />
+
+<h3>Feature matching</h3>
+<p>The feature matching phase is done using the ratio test as described in <a href="http://cs.brown.edu/courses/cs143/lectures/09.pdf">lecture note</a> and <strong>Szeliski 4.1.3</strong></p>
+<ol>
+    <li>Compute the distance matrix between the set of key points of the two images</li>
+    <li>Sort the distance matrix by row</li>
+    <li>Take the rows that has the ratio of the nearest neighbor and the second nearest neighbor below a certain threshold</li>
+</ol>
+
+<h3>Final results</h3>
+<table class="table_1" align="center">
+    <tr>
+        <td><img src="images/final/default.jpg"/></td>
+    <tr>
+        <td>21 good matches, 6 bad matches (78%)</td>
+    </tr>
+    <tr>
+        <td><img src="images/final/capricho_gaudi.jpg"/></td>
+    </tr>
+    <tr>
+        <td><img src="images/final/episcopal_gaudi.jpg"/></td>
+    </tr>
+    <tr>
+        <td><img src="images/final/pantheon_paris.jpg"/></td>
+    </tr>
+    <tr>
+        <td><img src="images/final/sleeping_beauty.jpg"/></td>
+    </tr>
+</table>
+<div style="clear:both" />
+
+<h3>Key Takeaways</h3>
+<ul>
+    <li>When finding interest points, using threshold and then find local maxima of connected components is much faster than using a sliding window while producing the same results  (or even better)</li>
+    <li>Since we are using a fixed frame size (<strong>feature_width</strong>), choosing two images of similar sizes will produce much better results</li>
+    <li>Since the frame size is only 16x16, the variance of the gaussian used to compute horizontal and vertical gradients shouldn't be too big. I improved the performance from 50% to 78% by changing the variance from 5 to 1</li>
+    <li>Clamping the gradient magnitude to 0.2 doesn't make any difference because almost all the values are less than 0.2</li>
+</ul>
+</ul>
+</body>
+</html>

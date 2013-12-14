@@ -1,0 +1,10 @@
+To compile on Mac:
+
+Evan was able to make the code compile after modifying 2 files.
+Here we have included the modified version from Evan.
+
+The compiled version is also included in /stencil/bench/source
+
+However, there is still a chance that this compiled version might not work on your Mac.
+
+Please let us know if you have problems with it on a Mac.
